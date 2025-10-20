@@ -11,6 +11,7 @@ import {
 import { signUp } from "../services/authService";
 import { Ionicons } from "@expo/vector-icons";
 import { signupStyles as styles } from "../styles/signupStyles";
+import { Alert } from "react-native";
 
 export default function SignupScreen() {
   const [email, setEmail] = useState("");
@@ -33,7 +34,11 @@ export default function SignupScreen() {
     try {
       setLoading(true);
       const user = await signUp(email, password);
-      alert(`Signup successful! You can now log in to your account.`);
+      Alert.alert(
+        "Signup Successful",
+        "You can now log in to your account.",
+        [{ text: "OK" }]
+      );
       setEmail("");
       setPassword("");
       setConfirmPassword("");
