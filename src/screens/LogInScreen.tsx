@@ -10,54 +10,47 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { signUp } from "../services/authService";
-import { signupStyles as styles } from "../styles/signupStyles";
+import { signIn } from "../services/authService";
+import { loginStyles as styles } from "../styles/loginStyles";
 import { User } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 
-type SignupScreenNavigationProp = NativeStackNavigationProp<
+type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  "Signup"
+  "Login"
 >;
 
-export default function SignupScreen(): ReactElement {
-  const navigation = useNavigation<SignupScreenNavigationProp>();
+export default function LoginScreen(): ReactElement {
+  const navigation = useNavigation<LoginScreenNavigationProp>();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSignup = async (): Promise<void> => {
+  const handleLogin = async (): Promise<void> => {
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+    if (!email || !password) {
+      setError("Please enter both email and password");
       return;
     }
 
     try {
       setLoading(true);
-      const user: User = await signUp(email, password);
+      const user: User = await signIn(email, password);
 
-      Alert.alert("Signup Successful", "You can now log in to your account.", [
-        { text: "OK", onPress: () => navigation.navigate("Login") },
+      Alert.alert("Login Successful", "Welcome back to BookStore!", [
+        { text: "OK" },
       ]);
 
       setEmail("");
       setPassword("");
-      setConfirmPassword("");
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message || "Something went wrong");
+      setError(e.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -69,10 +62,8 @@ export default function SignupScreen(): ReactElement {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={styles.card}>
-        <Text style={styles.header}>Create an account</Text>
-        <Text style={styles.subtext}>
-          Join BookStore and start booking today
-        </Text>
+        <Text style={styles.header}>Welcome back</Text>
+        <Text style={styles.subtext}>Log in to your BookStore account</Text>
 
         <View style={styles.form}>
           <Text style={styles.label}>Email</Text>
@@ -104,30 +95,11 @@ export default function SignupScreen(): ReactElement {
             />
             <TextInput
               style={styles.input}
-              placeholder="Create a password"
+              placeholder="Enter your password"
               placeholderTextColor="#999"
               secureTextEntry
               value={password}
               onChangeText={setPassword}
-            />
-          </View>
-          <Text style={styles.hint}>Must be at least 8 characters</Text>
-
-          <Text style={styles.label}>Confirm Password</Text>
-          <View style={styles.inputWrapper}>
-            <Ionicons
-              name="lock-closed-outline"
-              size={18}
-              color="#888"
-              style={styles.icon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm your password"
-              placeholderTextColor="#999"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
             />
           </View>
 
@@ -135,29 +107,28 @@ export default function SignupScreen(): ReactElement {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={handleSignup}
+            onPress={handleLogin}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.buttonText}>Create account</Text>
+              <Text style={styles.buttonText}>Log in</Text>
             )}
           </TouchableOpacity>
 
           <Text style={styles.footerText}>
-            By signing up, you agree to our{" "}
-            <Text style={styles.link}>Terms of Service</Text> and{" "}
-            <Text style={styles.link}>Privacy Policy</Text>.
+            Forgot your password?{" "}
+            <Text style={styles.link}>Reset here</Text>
           </Text>
 
-          <Text style={styles.loginText}>
-            Already have an account?{" "}
+          <Text style={styles.signupText}>
+            Don’t have an account?{" "}
             <Text
               style={styles.link}
-              onPress={() => navigation.navigate("Login")}
+              onPress={() => navigation.navigate("Signup")}
             >
-              Log in
+              Sign up
             </Text>
           </Text>
         </View>
