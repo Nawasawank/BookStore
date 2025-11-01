@@ -16,8 +16,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { app } from "../config/firebaseConfig";
 import { homeStyles as styles } from "../styles/homeStyles";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "../types/navigation";
+import { useCart } from "../components/cartContext";
+import { Image as ExpoImage } from "expo-image";
 
-type Book = {
+export type Book = {
   id: string;
   title: string;
   author: string;
@@ -28,16 +33,15 @@ type Book = {
   category: string;
 };
 
-const PAGE_SIZE = 10;
-
 export default function HomeScreen() {
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { totalCount } = useCart();
+
   const [books, setBooks] = useState<Book[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(1);
-  const [cartItems, setCartItems] = useState<Book[]>([]);
   const [menuVisible, setMenuVisible] = useState(false);
 
   const screenWidth = Dimensions.get("window").width;
@@ -60,15 +64,6 @@ export default function HomeScreen() {
     }).start(() => setMenuVisible(false));
   };
 
-  const listRef = useRef<FlatList<Book>>(null);
-  const goToPage = (next: number) => {
-    setPage(next);
-    requestAnimationFrame(() => {
-      listRef.current?.scrollToOffset({ offset: 0, animated: true });
-    });
-  };
-
-  // 🔥 Fetch books from Firebase
   useEffect(() => {
     const rtdb = getDatabase(app);
     const booksRef = ref(rtdb, "books");
@@ -126,14 +121,6 @@ export default function HomeScreen() {
     });
   }, [books, searchQuery, selectedCategory]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredBooks.length / PAGE_SIZE));
-  useEffect(() => {
-    setPage((p) => Math.min(Math.max(1, p), totalPages));
-  }, [totalPages, searchQuery, selectedCategory]);
-
-  const pageStart = (page - 1) * PAGE_SIZE;
-  const pageItems = filteredBooks.slice(pageStart, pageStart + PAGE_SIZE);
-
   if (loading)
     return (
       <View style={styles.loadingContainer}>
@@ -150,10 +137,11 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      {/* Header */}
       <View style={styles.headerBar}>
         <View style={styles.logoSection}>
           <Ionicons name="book-outline" size={24} color="#3b5ba9" />
-          <Text style={styles.logoText}>BookStore</Text>
+          <Text style={styles.logoText}>BookBig</Text>
         </View>
 
         <View style={styles.iconSection}>
@@ -161,22 +149,21 @@ export default function HomeScreen() {
             <Ionicons name="person-outline" size={22} color="#000" />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.cartIconWrapper}
-            onPress={() => console.log("Cart_clicked")}
-          >
-            <Ionicons name="cart-outline" size={22} color="#000" />
-            {cartItems.length > 0 && (
+          <View style={styles.cartIconWrapper}>
+            <TouchableOpacity onPress={() => nav.navigate("Cart")}>
+              <Ionicons name="cart-outline" size={22} color="#000" />
+            </TouchableOpacity>
+            {totalCount > 0 && (
               <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{cartItems.length}</Text>
+                <Text style={styles.cartBadgeText}>{totalCount}</Text>
               </View>
             )}
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
 
       <View style={styles.container}>
-        <Text style={styles.header}>Discover Your Next Great Read</Text>
+                <Text style={styles.header}>Discover Your Next Great Read</Text>
         <Text style={styles.subtext}>
           Browse our collection of bestsellers and hidden gems
         </Text>
@@ -184,7 +171,6 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={openMenu}>
             <Ionicons name="menu" size={22} color="#333" style={{ marginRight: 8 }} />
           </TouchableOpacity>
-
           <Ionicons name="search" size={18} color="#888" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
@@ -197,41 +183,53 @@ export default function HomeScreen() {
           />
         </View>
 
+        {/* Book Grid (no pagination) */}
         {filteredBooks.length === 0 ? (
           <Text style={styles.noBooks}>No books found matching your search.</Text>
         ) : (
           <FlatList
-            ref={listRef}
-            data={pageItems}
+            data={filteredBooks}
             numColumns={2}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 32 }}
+            contentContainerStyle={{ paddingBottom: 100 }}
             renderItem={({ item }) => (
-              <View style={styles.card}>
-                <Image
-                  source={{
-                    uri:
-                      item.thumbnail ||
-                      "https://dummyimage.com/200x300/eeeeee/555555.png&text=No+Image",
-                  }}
-                  style={styles.image}
-                />
-                <Text numberOfLines={2} style={styles.title}>
-                  {item.title || "Untitled"}
-                </Text>
-                <Text numberOfLines={1} style={styles.author}>
-                  {item.author || "Unknown Author"}
-                </Text>
-                <Text style={styles.price}>
-                  {typeof item.price === "number" ? `${item.price} THB` : "-"}
-                </Text>
-              </View>
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() =>
+                  nav.navigate("BookDetail", { bookId: item.id, book: item })
+                }
+                style={{ flex: 1 }}
+              >
+                <View style={styles.card}>
+                  <ExpoImage
+                    source={{
+                      uri:
+                        item.thumbnail ||
+                        "https://dummyimage.com/200x300/eeeeee/555555.png&text=No+Image",
+                    }}
+                    placeholder={{ uri: "https://dummyimage.com/20x30/eeeeee/cccccc.png" }}
+                    style={styles.image}
+                    contentFit="cover" 
+                    transition={500}    
+                  />
+                  <Text numberOfLines={2} style={styles.title}>
+                    {item.title || "Untitled"}
+                  </Text>
+                  <Text numberOfLines={1} style={styles.author}>
+                    {item.author || "Unknown Author"}
+                  </Text>
+                  <Text style={styles.price}>
+                    {typeof item.price === "number" ? `${item.price} THB` : "-"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             )}
           />
         )}
       </View>
 
+      {/* Slide-in category menu */}
       {menuVisible && (
         <>
           <Pressable style={styles.modalOverlay} onPress={closeMenu} />
@@ -253,7 +251,6 @@ export default function HomeScreen() {
                 ]}
                 onPress={() => {
                   setSelectedCategory(cat);
-                  goToPage(1);
                   closeMenu();
                 }}
               >

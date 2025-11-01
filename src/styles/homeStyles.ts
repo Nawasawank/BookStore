@@ -6,7 +6,7 @@ export const homeStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#faf4e6",
     paddingHorizontal: 16,
-    paddingTop: 30,
+    paddingTop: 20,
   },
   loadingContainer: {
     flex: 1,
@@ -129,9 +129,11 @@ iconSection: {
   alignItems: "center",
   gap: 16,
 },
+
 cartIconWrapper: {
   position: "relative",
 },
+
 cartBadge: {
   position: "absolute",
   top: -6,
@@ -198,5 +200,4 @@ menuItemText: {
 menuItemTextActive: {
   color: "#a57b18",
   fontWeight: "600",
-},
-});
+},});
