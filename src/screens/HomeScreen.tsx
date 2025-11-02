@@ -145,7 +145,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.iconSection}>
-          <TouchableOpacity onPress={() => console.log("Profile_clicked")}>
+          <TouchableOpacity onPress={() => nav.navigate("Profile")}>
             <Ionicons name="person-outline" size={22} color="#000" />
           </TouchableOpacity>
 

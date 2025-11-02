@@ -9,6 +9,8 @@ import HomeScreen from "./src/screens/HomeScreen";
 import BookDetailScreen from "./src/screens/BookDetailScreen";
 import CartScreen from "./src/screens/CartScreen";
 import CheckoutScreen from "./src/screens/CheckOutScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
+import HistoryScreen from "./src/screens/HistoryScreen";
 import { CartProvider } from "./src/components/cartContext";
 import { RootStackParamList } from "./src/types/navigation";
 
@@ -46,7 +48,13 @@ export default function App() {
             name="Cart" 
             component={CartScreen} 
             options={{ title: "Cart" }} />
-            <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: "Checkout" }} />
+          <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: "Checkout" }} />
+          <Stack.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{ title: "Profile" }}
+          />
+          <Stack.Screen name="History" component={HistoryScreen} options={{ title: "Order History" }} />
         </Stack.Navigator>
       </NavigationContainer>
     </CartProvider>

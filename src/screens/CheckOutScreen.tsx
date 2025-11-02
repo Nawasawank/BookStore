@@ -65,6 +65,7 @@ export default function CheckoutScreen() {
           title: item.book.title,
           qty: item.qty,
           price: item.book.price,
+          image_url: item.book.thumbnail || null,
         })),
         subtotal,
         createdAt: new Date().toISOString(),
@@ -81,37 +82,89 @@ export default function CheckoutScreen() {
 
   return (
     <View style={s.container}>
-      <Text style={s.header}>Checkout</Text>
+      <Text style={s.header}>Shipping Information</Text>
+        <TextInput
+            style={s.input}
+            placeholder="Full Name"
+            value={formData.fullName}
+            onChangeText={(t) => setFormData({ ...formData, fullName: t })}
+        />
+        <TextInput
+            style={s.input}
+            placeholder="Email"
+            value={formData.email}
+            editable={false}
+        />
+        <TextInput
+            style={s.input}
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChangeText={(t) => setFormData({ ...formData, phone: t })}
+        />
+        <TextInput
+            style={[s.input, { height: 80 }]}
+            multiline
+            placeholder="Shipping Address"
+            value={formData.address}
+            onChangeText={(t) => setFormData({ ...formData, address: t })}
+        />
 
-      <TextInput
-        style={s.input}
-        placeholder="Full Name"
-        value={formData.fullName}
-        onChangeText={(t) => setFormData({ ...formData, fullName: t })}
-      />
-      <TextInput
-        style={s.input}
-        placeholder="Email"
-        value={formData.email}
-        editable={false}
-      />
-      <TextInput
-        style={s.input}
-        placeholder="Phone Number"
-        value={formData.phone}
-        onChangeText={(t) => setFormData({ ...formData, phone: t })}
-      />
-      <TextInput
-        style={[s.input, { height: 80 }]}
-        multiline
-        placeholder="Shipping Address"
-        value={formData.address}
-        onChangeText={(t) => setFormData({ ...formData, address: t })}
-      />
+        <TouchableOpacity style={s.confirmBtn} onPress={handleConfirmOrder}>
+            <Text style={s.confirmText}>Confirm Order</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={s.confirmBtn} onPress={handleConfirmOrder}>
-        <Text style={s.confirmText}>Confirm Order</Text>
-      </TouchableOpacity>
+        <View style={s.summaryContainer}>
+            <Text style={s.summaryHeader}>Order Summary</Text>
+
+            {Object.values(items).map((item) => (
+                <View key={item.book.id} style={s.summaryItem}>
+                <View style={s.summaryInfo}>
+                    <Text style={s.bookTitle}>{item.book.title}</Text>
+                    <Text style={s.bookAuthor}>{item.book.author}</Text>
+                    <Text style={s.bookPrice}>
+                    ${item.book.price?.toFixed(2)} × {item.qty}
+                    </Text>
+                </View>
+                <Text style={s.bookTotal}>
+                    ${(item.book.price! * item.qty).toFixed(2)}
+                </Text>
+                </View>
+            ))}
+
+            <View style={s.summaryLine} />
+
+            <View style={s.summaryRow}>
+                <Text style={s.label}>Subtotal</Text>
+                <Text style={s.value}>
+                $
+                {Object.values(items)
+                    .reduce((sum, item) => sum + (item.book.price || 0) * item.qty, 0)
+                    .toFixed(2)}
+                </Text>
+            </View>
+
+            <View style={s.summaryRow}>
+                <Text style={s.label}>Shipping</Text>
+                <Text style={s.freeText}>Free</Text>
+            </View>
+
+
+            <View style={s.summaryLine} />
+
+            <View style={s.summaryRow}>
+                <Text style={s.totalLabel}>Total</Text>
+                <Text style={s.totalValue}>
+                $
+                {(
+                    Object.values(items).reduce(
+                    (sum, item) => sum + (item.book.price || 0) * item.qty,
+                    0
+                    )
+                ).toFixed(2)}
+                </Text>
+            </View>
+        </View>
     </View>
+    
   );
 }

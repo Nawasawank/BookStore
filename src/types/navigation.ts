@@ -16,4 +16,6 @@ export type RootStackParamList = {
   BookDetail: { bookId: string; book: Book };
   Cart: undefined;
   Checkout: undefined;
+  Profile: undefined;
+  History: undefined;
 };

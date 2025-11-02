@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getDatabase, ref, set, get, onValue } from "firebase/database";
-import { getAuth } from "firebase/auth";
+import { getDatabase, ref, set, onValue } from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "../config/firebaseConfig";
 
 export type Book = {
@@ -31,29 +31,41 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<Record<string, CartItem>>({});
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isCartLoaded, setIsCartLoaded] = useState(false); 
   const db = getDatabase(app);
   const auth = getAuth();
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) return;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+        const cartRef = ref(db, `carts/${user.uid}`);
 
-    const cartRef = ref(db, `carts/${user.uid}`);
-    const unsubscribe = onValue(cartRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) setItems(data);
+        onValue(cartRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            setItems(data);
+          } else {
+            setItems({});
+          }
+          setIsCartLoaded(true); 
+        });
+      } else {
+        setUserId(null);
+        setItems({});
+        setIsCartLoaded(false);
+      }
     });
 
-    return () => unsubscribe();
-  }, [auth.currentUser]);
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const cartRef = ref(db, `carts/${user.uid}`);
+    if (!userId || !isCartLoaded) return; 
+    const cartRef = ref(db, `carts/${userId}`);
     set(cartRef, items);
-  }, [items]);
+  }, [items, userId, isCartLoaded]);
 
   const addToCart = (book: Book, qty: number = 1) => {
     setItems((prev) => {
@@ -79,6 +91,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const totalCount = useMemo(() => Object.keys(items).length, [items]);
 
   const value = { items, addToCart, removeFromCart, clearCart, totalCount };
+
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
