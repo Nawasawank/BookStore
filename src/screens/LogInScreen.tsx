@@ -42,7 +42,6 @@ export default function LoginScreen(): ReactElement {
       setLoading(true);
       const user: User = await signIn(email, password);
 
-      // ✅ Redirect to Home after successful login
       Alert.alert("Login Successful", "Welcome back to BookStore!", [
         {
           text: "OK",
