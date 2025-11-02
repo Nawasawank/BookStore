@@ -120,11 +120,6 @@ export default function LoginScreen(): ReactElement {
             )}
           </TouchableOpacity>
 
-          <Text style={styles.footerText}>
-            Forgot your password?{" "}
-            <Text style={styles.link}>Reset here</Text>
-          </Text>
-
           <Text style={styles.signupText}>
             Don’t have an account?{" "}
             <Text
