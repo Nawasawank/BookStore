@@ -31,6 +31,7 @@ export type Book = {
   price: number | null;
   category: string;
   description?: string;
+  qty?: number;
 };
 
 export default function HomeScreen() {
@@ -87,6 +88,7 @@ export default function HomeScreen() {
                   ? b.Price
                   : null,
               category: b.category ?? b.Category ?? "Uncategorized",
+              qty: typeof b.qty === "number" ? b.qty : 0,
             }))
           : [];
         setBooks(list);

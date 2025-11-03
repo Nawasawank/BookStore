@@ -31,6 +31,15 @@ export default function BookDetailScreen() {
       Alert.alert("Invalid quantity", "Please enter a positive number.");
       return;
     }
+
+    if (book.qty !== undefined && n > book.qty) {
+      Alert.alert(
+        "Not enough stock",
+        `Only ${book.qty} copies of "${book.title}" are available.`
+      );
+      return;
+    }
+
     addToCart(book, n);
     Alert.alert("Added", `${n} × "${book.title}" added to cart.`);
   };
@@ -41,6 +50,7 @@ export default function BookDetailScreen() {
       contentContainerStyle={{ paddingBottom: 50 }}
       showsVerticalScrollIndicator={false}
     >
+      {/* Cover */}
       <ExpoImage
         source={{
           uri:
@@ -53,12 +63,25 @@ export default function BookDetailScreen() {
         transition={500}
       />
 
+      {/* Book Info */}
       <Text style={s.title}>{book.title}</Text>
       <Text style={s.author}>{book.author}</Text>
       <Text style={s.meta}>Publisher: {book.publisher || "-"}</Text>
       <Text style={s.meta}>ISBN: {book.isbn || "-"}</Text>
-      <Text style={s.desription_header}>Description</Text>
 
+      {/* Stock Info */}
+      <Text
+        style={[
+          s.meta,
+          { color: book.qty === 0 ? "red" : "#3b5ba9", marginBottom: 4 },
+        ]}
+      >
+        {book.qty === 0
+          ? "Out of stock"
+          : `In stock: ${book.qty} ${book.qty === 1 ? "copy" : "copies"}`}
+      </Text>
+
+      <Text style={s.desription_header}>Description</Text>
       <Text style={s.description}>
         {book.description || "No description available."}
       </Text>
@@ -67,6 +90,7 @@ export default function BookDetailScreen() {
         {typeof book.price === "number" ? `${book.price} THB` : "-"}
       </Text>
 
+      {/* Quantity Selector */}
       <View style={s.qtyRow}>
         <Text style={s.qtyLabel}>Quantity</Text>
         <View style={s.qtyBox}>
@@ -87,7 +111,9 @@ export default function BookDetailScreen() {
           />
 
           <TouchableOpacity
-            onPress={() => setQty(String((parseInt(qty, 10) || 0) + 1))}
+            onPress={() =>
+              setQty(String((parseInt(qty, 10) || 0) + 1))
+            }
             style={s.qtyBtn}
           >
             <Text style={s.qtyBtnText}>+</Text>
@@ -95,9 +121,19 @@ export default function BookDetailScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={s.addBtn} onPress={handleAddToCart}>
+      {/* Add to Cart Button */}
+      <TouchableOpacity
+        style={[
+          s.addBtn,
+          { backgroundColor: book.qty === 0 ? "#ccc" : "#3b5ba9" },
+        ]}
+        onPress={handleAddToCart}
+        disabled={book.qty === 0}
+      >
         <Ionicons name="cart" size={18} color="#fff" />
-        <Text style={s.addBtnText}>Add to Cart</Text>
+        <Text style={s.addBtnText}>
+          {book.qty === 0 ? "Out of Stock" : "Add to Cart"}
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );

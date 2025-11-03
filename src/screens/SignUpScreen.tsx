@@ -145,12 +145,6 @@ export default function SignupScreen(): ReactElement {
             )}
           </TouchableOpacity>
 
-          <Text style={styles.footerText}>
-            By signing up, you agree to our{" "}
-            <Text style={styles.link}>Terms of Service</Text> and{" "}
-            <Text style={styles.link}>Privacy Policy</Text>.
-          </Text>
-
           <Text style={styles.loginText}>
             Already have an account?{" "}
             <Text

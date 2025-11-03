@@ -1,29 +1,57 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { TouchableOpacity, View, Text } from "react-native";
 import { Image as ExpoImage } from "expo-image";
-import { homeStyles as s } from "../styles/homeStyles";
+import { homeStyles as styles } from "../styles/homeStyles";
+import type { Book } from "../screens/HomeScreen";
 
-function BookCard({ item, onPress }: any) {
+type Props = {
+  item: Book;
+  onPress: () => void;
+};
+
+export default function BookCard({ item, onPress }: Props) {
   return (
-    <TouchableOpacity onPress={() => onPress(item)} style={{ flexBasis: "50%", marginHorizontal: "1%", marginVertical: 5 }}>
-      <View style={s.card}>
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={onPress}
+      style={{ width: "50%", marginBottom: 5 }}
+    >
+      <View style={styles.card}>
         <ExpoImage
           source={{
-            uri: item.thumbnail || "https://dummyimage.com/200x300/eeeeee/555555.png&text=No+Image",
+            uri:
+              item.thumbnail ||
+              "https://dummyimage.com/200x300/eeeeee/555555.png&text=No+Image",
           }}
-          placeholder={{ uri: "https://dummyimage.com/20x30/eeeeee/cccccc.png" }}
-          style={s.image}
+          style={styles.image}
           contentFit="cover"
-          transition={300}
+          transition={500}
         />
-        <Text numberOfLines={2} style={s.title}>{item.title}</Text>
-        <Text numberOfLines={1} style={s.author}>{item.author}</Text>
-        <Text style={s.price}>
+        <Text numberOfLines={2} style={styles.title}>
+          {item.title || "Untitled"}
+        </Text>
+        <Text numberOfLines={1} style={styles.author}>
+          {item.author || "Unknown Author"}
+        </Text>
+        <Text style={styles.price}>
           {typeof item.price === "number" ? `${item.price} THB` : "-"}
+        </Text>
+        <Text style={styles.isbn}>
+            {item.isbn ? `ISBN: ${item.isbn}` : "No ISBN"}
+        </Text>
+
+        <Text
+          style={{
+            fontSize: 12,
+            color: item.qty && item.qty > 0 ? "#3b5ba9" : "red",
+            marginTop: 4,
+          }}
+        >
+          {item.qty && item.qty > 0
+            ? `In stock: ${item.qty}`
+            : "Out of stock"}
         </Text>
       </View>
     </TouchableOpacity>
   );
 }
-
-export default React.memo(BookCard);

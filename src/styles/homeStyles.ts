@@ -90,6 +90,11 @@ export const homeStyles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
   },
+  isbn: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+  },
   price: {
     fontSize: 13,
     color: "#a57b18",
