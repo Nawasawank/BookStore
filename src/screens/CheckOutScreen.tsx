@@ -18,19 +18,26 @@ export default function CheckoutScreen() {
     phone: "",
     address: "",
   });
+  const [hasAlertShown, setHasAlertShown] = useState(false);
 
-  useEffect(() => {
+    useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+        if (user) {
         setCurrentUser(user);
         setFormData((prev) => ({ ...prev, email: user.email || "" }));
-      } else {
-        Alert.alert("Not Logged In", "Please log in before checking out.");
-        navigation.navigate("Login" as never);
-      }
+        setHasAlertShown(false);
+        } else {
+        if (!hasAlertShown) {
+            setHasAlertShown(true);
+            Alert.alert("Not Logged In", "Please log in before checking out.");
+            navigation.navigate("Login" as never);
+        }
+        }
     });
+
     return unsubscribe;
-  }, []);
+    }, [hasAlertShown]);
+
 
   const handleConfirmOrder = async () => {
     if (!currentUser) {

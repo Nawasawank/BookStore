@@ -34,6 +34,10 @@ export const bookDetailStyles = StyleSheet.create({
 
   meta: { fontSize: 14, color: "#777", textAlign: "center", marginBottom: 2 },
 
+  description: { fontSize: 14, color: "#444", textAlign: "left", marginVertical: 12 },
+
+  desription_header: { fontSize: 16, fontWeight: "700", color: "#3c2f2f", marginTop: 12 },
+
   price: {
     fontSize: 18,
     color: "#a57b18",

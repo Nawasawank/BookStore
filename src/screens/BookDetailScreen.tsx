@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -13,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image as ExpoImage } from "expo-image";
 import { useCart } from "../components/cartContext";
 import { bookDetailStyles as s } from "../styles/bookDetailStyles";
+
 type DetailRoute = RouteProp<RootStackParamList, "BookDetail">;
 type DetailNav = StackNavigationProp<RootStackParamList, "BookDetail">;
 
@@ -34,8 +36,11 @@ export default function BookDetailScreen() {
   };
 
   return (
-    <View style={s.container}>
-
+    <ScrollView
+      style={s.container}
+      contentContainerStyle={{ paddingBottom: 50 }}
+      showsVerticalScrollIndicator={false}
+    >
       <ExpoImage
         source={{
           uri:
@@ -52,6 +57,12 @@ export default function BookDetailScreen() {
       <Text style={s.author}>{book.author}</Text>
       <Text style={s.meta}>Publisher: {book.publisher || "-"}</Text>
       <Text style={s.meta}>ISBN: {book.isbn || "-"}</Text>
+      <Text style={s.desription_header}>Description</Text>
+
+      <Text style={s.description}>
+        {book.description || "No description available."}
+      </Text>
+
       <Text style={s.price}>
         {typeof book.price === "number" ? `${book.price} THB` : "-"}
       </Text>
@@ -88,6 +99,6 @@ export default function BookDetailScreen() {
         <Ionicons name="cart" size={18} color="#fff" />
         <Text style={s.addBtnText}>Add to Cart</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }

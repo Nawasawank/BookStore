@@ -7,6 +7,7 @@ export type Book = {
   thumbnail: string;
   price: number | null;
   category: string;
+  description?: string;
 };
 
 export type RootStackParamList = {

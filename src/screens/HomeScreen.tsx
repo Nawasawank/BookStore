@@ -5,7 +5,6 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   Keyboard,
   Animated,
@@ -20,7 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../types/navigation";
 import { useCart } from "../components/cartContext";
-import { Image as ExpoImage } from "expo-image";
+import BookCard from "../components/ฺBookCard";
 
 export type Book = {
   id: string;
@@ -31,6 +30,7 @@ export type Book = {
   thumbnail: string;
   price: number | null;
   category: string;
+  description?: string;
 };
 
 export default function HomeScreen() {
@@ -79,6 +79,7 @@ export default function HomeScreen() {
               publisher: b.publisher ?? b.Publisher ?? "",
               isbn: b.isbn ?? b.ISBN ?? "",
               thumbnail: b.image_url ?? b.Thumbnail ?? "",
+              description: b.description ?? b.Description ?? "",
               price:
                 typeof b.price_thb === "number"
                   ? b.price_thb
@@ -163,15 +164,27 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.container}>
-                <Text style={styles.header}>Discover Your Next Great Read</Text>
+        <Text style={styles.header}>Discover Your Next Great Read</Text>
         <Text style={styles.subtext}>
           Browse our collection of bestsellers and hidden gems
         </Text>
+
+        {/* Search Bar */}
         <View style={styles.searchContainer}>
           <TouchableOpacity onPress={openMenu}>
-            <Ionicons name="menu" size={22} color="#333" style={{ marginRight: 8 }} />
+            <Ionicons
+              name="menu"
+              size={22}
+              color="#333"
+              style={{ marginRight: 8 }}
+            />
           </TouchableOpacity>
-          <Ionicons name="search" size={18} color="#888" style={styles.searchIcon} />
+          <Ionicons
+            name="search"
+            size={18}
+            color="#888"
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="Search by title, author, publisher, ISBN..."
@@ -183,7 +196,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Book Grid (no pagination) */}
+        {/* Book Grid */}
         {filteredBooks.length === 0 ? (
           <Text style={styles.noBooks}>No books found matching your search.</Text>
         ) : (
@@ -192,53 +205,31 @@ export default function HomeScreen() {
             numColumns={2}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{
+              paddingBottom: 100,
+              paddingHorizontal: 4,
+            }}
+            columnWrapperStyle={{ justifyContent: "flex-start" }}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                activeOpacity={0.85}
+              <BookCard
+                item={item}
                 onPress={() =>
                   nav.navigate("BookDetail", { bookId: item.id, book: item })
                 }
-                style={{ flex: 1 }}
-              >
-                <View style={styles.card}>
-                  <ExpoImage
-                    source={{
-                      uri:
-                        item.thumbnail ||
-                        "https://dummyimage.com/200x300/eeeeee/555555.png&text=No+Image",
-                    }}
-                    placeholder={{ uri: "https://dummyimage.com/20x30/eeeeee/cccccc.png" }}
-                    style={styles.image}
-                    contentFit="cover" 
-                    transition={500}    
-                  />
-                  <Text numberOfLines={2} style={styles.title}>
-                    {item.title || "Untitled"}
-                  </Text>
-                  <Text numberOfLines={1} style={styles.author}>
-                    {item.author || "Unknown Author"}
-                  </Text>
-                  <Text style={styles.price}>
-                    {typeof item.price === "number" ? `${item.price} THB` : "-"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
+              />
             )}
           />
         )}
       </View>
 
-      {/* Slide-in category menu */}
+      {/* Slide-in Category Menu */}
       {menuVisible && (
         <>
           <Pressable style={styles.modalOverlay} onPress={closeMenu} />
           <Animated.View
             style={[
               styles.sideMenu,
-              {
-                transform: [{ translateX: slideAnim }],
-              },
+              { transform: [{ translateX: slideAnim }] },
             ]}
           >
             <Text style={styles.menuTitle}>Categories</Text>
