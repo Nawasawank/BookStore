@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import { useNavigation, useIsFocused } from "@react-navigation/native";
-import { getDatabase, ref, push, set, get, update } from "firebase/database";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, app } from "../config/firebaseConfig";
+import { get, getDatabase, push, ref, set, update } from "firebase/database";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useCart } from "../components/cartContext";
+import { app, auth } from "../config/firebaseConfig";
 import { checkoutStyles as s } from "../styles/checkOutStyles";
 
 export default function CheckoutScreen() {
@@ -115,6 +115,7 @@ export default function CheckoutScreen() {
   };
 
   return (
+  <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
     <View style={s.container}>
       <Text style={s.header}>Shipping Information</Text>
 
@@ -186,5 +187,6 @@ export default function CheckoutScreen() {
         </View>
       </View>
     </View>
-  );
+  </ScrollView>
+);
 }
